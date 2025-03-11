@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furniture Layout</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Optimized Furniture Layout</h1>
+    <div class="container">
+        <h2>Room Layout</h2>
+        <div id="roomGraph" style="width: 100%; height: 400px;"></div>
+        <h2>Furniture Positions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Furniture</th>
+                    <th>X Position</th>
+                    <th>Y Position</th>
+                </tr>
+            </thead>
+            <tbody id="furnitureTableBody"></tbody>
+        </table>
+        <button class="back-button" onclick="window.location.href='/'">Back</button>
+    </div>
+
+    <script>
+        const roomSize = {{ room_size | tojson }};
+        const furniturePositions = {{ furniture_positions | tojson }};
+
+        function drawLayout() {
+            const layout = {
+                title: "Furniture Layout",
+                xaxis: { range: [-1, roomSize[0]], showgrid: true, dtick: 1 },
+                yaxis: { range: [-1, roomSize[1]], showgrid: true, dtick: 1 },
+                showlegend: false
+            };
+
+            let traces = furniturePositions.map((pos, index) => ({
+                x: [pos[0] + 0.5],
+                y: [pos[1] + 0.5],
+                mode: "markers+text",
+                marker: { size: 40, color: ["red", "green", "blue"][index % 3] },
+                text: `F${index + 1}`,
+                textposition: "middle center"
+            }));
+
+            Plotly.newPlot("roomGraph", traces, layout);
+        }
+
+        function showFurniturePositions() {
+            const tableBody = document.getElementById("furnitureTableBody");
+            tableBody.innerHTML = "";
+            furniturePositions.forEach((pos, index) => {
+                const row = `<tr><td>F${index + 1}</td><td>${pos[0]}</td><td>${pos[1]}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        drawLayout();
+        showFurniturePositions();
+    </script>
+</body>
+</html>
